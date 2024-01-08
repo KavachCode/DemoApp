@@ -1,31 +1,42 @@
-import { StyleSheet } from 'react-native';
+import * as React from 'react';
+import { Platform, SafeAreaView, ScrollView } from "react-native";
+import Lottie from 'lottie-react-native'
+import { RefreshControl } from "react-native-gesture-handler";
+import { ThreadContext } from '../../context/thread-context';
+import {View ,Text} from 'react-native'
+import ThreadItem from '../../components/ThreadsItem';
 
-import EditScreenInfo from '../../components/EditScreenInfo';
-import { Text, View } from '../../components/Themed';
 
 export default function TabOneScreen() {
+  const animationRef = React.useRef<Lottie>(null);
+  const threads = React.useContext(ThreadContext)
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
-    </View>
+    <SafeAreaView>
+      <ScrollView
+      contentContainerStyle={{
+        paddingHorizontal: 10,
+        paddingTop: Platform.select({android: 30}),
+      }}
+      refreshControl={
+        <RefreshControl
+        refreshing={false} 
+        tintColor={'transparent'}
+        onRefresh={() => {animationRef.current?.play();}}
+        />
+      }
+      >
+    <Lottie 
+    ref={animationRef}
+    source={require("../../animation/threads.json")}
+    loop={false}
+    autoPlay
+    style={{width: 90, height: 90, alignSelf: 'center'}}
+    />
+    {threads.map((thread) => (
+     <ThreadItem key={thread.id} {...thread} />
+    ))}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
